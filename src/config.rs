@@ -88,17 +88,17 @@ impl Default for Theme {
                 .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
 
-            input_border: Style::default().fg(Color::Cyan),
-            prompt_border: Style::default().fg(Color::Green),
+            input_border: Style::default().fg(Color::White),
+            prompt_border: Style::default().fg(Color::White),
 
-            border_type: BorderType::Rounded,
+            border_type: BorderType::Plain,
 
-            prompt_correct: Style::default().fg(Color::Green),
+            prompt_correct: Style::default().fg(Color::White),
             prompt_incorrect: Style::default().fg(Color::Red),
-            prompt_untyped: Style::default().fg(Color::Gray),
+            prompt_untyped: Style::default().fg(Color::DarkGray),
 
             prompt_current_correct: Style::default()
-                .fg(Color::Green)
+                .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
             prompt_current_incorrect: Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
             prompt_current_untyped: Style::default()
@@ -110,12 +110,12 @@ impl Default for Theme {
             results_overview: Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
-            results_overview_border: Style::default().fg(Color::Cyan),
+            results_overview_border: Style::default().fg(Color::White),
 
             results_worst_keys: Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
-            results_worst_keys_border: Style::default().fg(Color::Cyan),
+            results_worst_keys_border: Style::default().fg(Color::White),
 
             results_chart: Style::default().fg(Color::Cyan),
             results_chart_x: Style::default().fg(Color::Cyan),

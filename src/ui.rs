@@ -4,6 +4,8 @@ use super::test::{results, Test, TestWord};
 
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
+use ratatui::layout::Alignment;
+use ratatui::layout::Margin;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
@@ -78,26 +80,29 @@ impl ThemedWidget for &Test {
     fn render(self, area: Rect, buf: &mut Buffer, theme: &Theme) {
         buf.set_style(area, theme.default);
 
-        // Chunks
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Length(6)])
-            .split(area);
+        // // Chunks
+        // let chunks = Layout::default()
+        //     .direction(Direction::Vertical)
+        //     .constraints([Constraint::Length(3), Constraint::Length(6)])
+        //     .split(area);
 
-        // Sections
-        let input = SizedBlock {
-            block: Block::default()
-                .title(Line::from(vec![Span::styled("Input", theme.title)]))
-                .borders(Borders::ALL)
-                .border_type(theme.border_type)
-                .border_style(theme.input_border),
-            area: chunks[0],
-        };
-        input.draw_inner(
-            &Line::from(self.words[self.current_word].progress.clone()),
-            buf,
-        );
-        input.render(buf);
+        // // Sections
+        // let input = SizedBlock {
+        //     block: Block::default()
+        //         .title(Line::from(vec![Span::styled("Input", theme.title)]))
+        //         .borders(Borders::ALL)
+        //         .border_type(theme.border_type)
+        //         .border_style(theme.input_border),
+        //     area: chunks[0],
+        // };
+        // input.draw_inner(
+        //     &Line::from(self.words[self.current_word].progress.clone()),
+        //     buf,
+        // );
+        // input.render(buf);
+
+        // Define horizontal padding constant
+        const HORIZONTAL_PADDING: u16 = 8;
 
         let target_lines: Vec<Line> = {
             let words = words_to_spans(&self.words, self.current_word, theme);
@@ -105,10 +110,13 @@ impl ThemedWidget for &Test {
             let mut lines: Vec<Line> = Vec::new();
             let mut current_line: Vec<Span> = Vec::new();
             let mut current_width = 0;
+            // Calculate available width accounting for horizontal padding (8 on each side = 16 total)
+            let available_width = area.width.saturating_sub(HORIZONTAL_PADDING * 2) as usize;
+
             for word in words {
                 let word_width: usize = word.iter().map(|s| s.width()).sum();
 
-                if current_width + word_width > chunks[1].width as usize - 2 {
+                if current_width + word_width > available_width {
                     current_line.push(Span::raw("\n"));
                     lines.push(Line::from(current_line.clone()));
                     current_line.clear();
@@ -122,14 +130,30 @@ impl ThemedWidget for &Test {
 
             lines
         };
-        let target = Paragraph::new(target_lines).block(
-            Block::default()
-                .title(Span::styled("Prompt", theme.title))
-                .borders(Borders::ALL)
-                .border_type(theme.border_type)
-                .border_style(theme.prompt_border),
-        );
-        target.render(chunks[1], buf);
+        // Calculate content height
+        let content_height = target_lines.len() as u16;
+
+        // Calculate top padding for vertical centering
+        let top_padding = area.height.saturating_sub(content_height) / 2;
+
+        // Create vertical layout for centering
+        let vertical_chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(top_padding),    // Top spacer
+                Constraint::Length(content_height), // Content
+                Constraint::Min(0),                 // Bottom spacer (takes remaining space)
+            ])
+            .split(area);
+
+        // Apply horizontal padding
+        let padded_area = vertical_chunks[1].inner(&Margin {
+            vertical: 0,
+            horizontal: HORIZONTAL_PADDING,
+        });
+
+        let target = Paragraph::new(target_lines).alignment(Alignment::Left);
+        target.render(padded_area, buf);
     }
 }
 
